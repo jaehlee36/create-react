@@ -12,7 +12,8 @@ class Subject extends React.Component {
                 this.props.onChangePage();
             }.bind(this)}
                 >{this.props.title}</a></h1>
-            {this.props.sub}
+            {this.props.sub}<br></br>
+            <b>mode: '{this.props.mode}'</b>
         </header>
     );
   }

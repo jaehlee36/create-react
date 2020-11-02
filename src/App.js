@@ -1,13 +1,17 @@
 import React, {Components} from 'react';
 import Subject from "./components/Subject"
 import TOC from "./components/TOC"
-import Content from "./components/Content"
+import ReadContent from "./components/ReadContent"
+import CreateContent from "./components/CreateContent"
+import UpdateContent from "./components/UpdateContent"
+import Control from "./components/Control"
 
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.max_content_id = 3;
     this.state = {
-      mode:"welcome",
+      mode:"create",
       selectedContents_id:2,
       subject: {title:'web', sub:'world wide web'},
       welcome:{title:'welcome', desc:"Hello react"},
@@ -18,32 +22,50 @@ class App extends React.Component {
       ]
     }
   }
-  render() {
-    var _title, _desc = null;
+  getReadContent() {
+    var i = 0;
+    while (i<this.state.contents.length) {
+      var data = this.state.contents[i];
+      if (data.id == this.state.selectedContents_id) {
+        return data;
+        break;
+      }
+      i++;
+    }
+  }
+  getContent() {
+    var _title, _desc, _article = null;
     if (this.state.mode === 'welcome') {
       _title = this.state.welcome.title;
       _desc = this.state.welcome.desc;
+      _article = <ReadContent title={_title} desc={_desc}></ReadContent>
     } else if (this.state.mode === "read") {
-      var i = 0;
-      debugger;
-      while (i<this.state.contents.length) {
-        var data = this.state.contents[i];
-        debugger;
-        if (data.id == this.state.selectedContents_id) {
-          console.log("render");
-          debugger;
-          _title = data.title;
-          _desc = data.desc;
-          break;
-        }
-        i++;
-      }
+      var _content = this.getReadContent();
+      _article = <ReadContent title={_content.title} desc={_content.desc}></ReadContent>
+    } else if (this.state.mode == "create") {
+      _article = <CreateContent onSubmit={function(_title, _desc) {
+        //add contents
+        this.max_content_id++;
+        var _contents = this.state.contents.concat(
+          {id: this.max_content_id, title: _title, desc:_desc}
+        )
+        this.setState({
+          contents: _contents
+        })
+      }.bind(this)}></CreateContent>
+    } else if (this.state.mode == "update") {
+      _content = this.getReadContent();
+      _article = <UpdateContent data={_content}></UpdateContent>
     }
+    return _article;
+  }
+  render() {
     return (
       <div className="App">
           <Subject  
             title={this.state.subject.title}
             sub={this.state.subject.sub}
+            mode={this.state.mode}
             onChangePage ={ function() {
               this.setState({
                 mode:"welcome"
@@ -59,8 +81,13 @@ class App extends React.Component {
               })
             }.bind(this)}
             data={this.state.contents}>
-            </TOC>
-          <Content title={_title} desc={_desc}></Content>
+          </TOC>
+          <Control onChangeMode={function(_mode) {
+            this.setState({
+              mode: _mode
+            })
+          }.bind(this)}></Control>
+          {this.getContent()}
       </div>
     );
   }
