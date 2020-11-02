@@ -44,19 +44,27 @@ class App extends React.Component {
       _article = <ReadContent title={_content.title} desc={_content.desc}></ReadContent>
     } else if (this.state.mode == "create") {
       _article = <CreateContent onSubmit={function(_title, _desc) {
-        //add contents
         this.max_content_id++;
         var _contents = this.state.contents.concat(
           {id: this.max_content_id, title: _title, desc:_desc}
         )
         this.setState({
-          contents: _contents
+          contents: _contents,
+          mode: "read"
         })
       }.bind(this)}></CreateContent>
     } else if (this.state.mode == "update") {
       _content = this.getReadContent();
-      _article = <UpdateContent data={_content}></UpdateContent>
-    }
+      _article = <UpdateContent data={_content} onSubmit={function(_id, _title, _desc) {
+        var _contents = Array.from(this.state.contents);
+        _contents[this.state.selectedContents_id - 1] = {id:_id, title:_title, desc:_desc};
+        this.setState({
+          contents: _contents,
+          mode: "read"
+        })
+      }.bind(this)}
+        ></UpdateContent>
+    } 
     return _article;
   }
   render() {
@@ -67,26 +75,34 @@ class App extends React.Component {
             sub={this.state.subject.sub}
             mode={this.state.mode}
             onChangePage ={ function() {
-              this.setState({
-                mode:"welcome"
-              })
-            }.bind(this)}
-            >
+              this.setState({ mode:"welcome"})
+            }.bind(this)}>
             </Subject>
           <TOC
-            onChangePage={function(id){
-              this.setState({
-                mode: "read",
-                selectedContents_id: Number(id)
-              })
+            onChangePage={function(id) {
+              this.setState({mode: "read", selectedContents_id: Number(id)})
             }.bind(this)}
             data={this.state.contents}>
           </TOC>
           <Control onChangeMode={function(_mode) {
-            this.setState({
-              mode: _mode
-            })
-          }.bind(this)}></Control>
+            if(_mode == "delete") {
+              if(window.confirm("레알지워?")) {
+                var _contents = Array.from(this.state.contents);
+                var i = 0;
+                while (i< _contents.length) {
+                  if(_contents[i].id === this.state.selectedContents_id) {
+                    _contents.splice(i,1);
+                    break;
+                  }
+                  i++;
+                }
+                this.setState({ mode: "welcome", contents:_contents});
+              }
+            } else {
+              this.setState({mode: _mode})
+            }
+          }.bind(this)}>
+          </Control>
           {this.getContent()}
       </div>
     );

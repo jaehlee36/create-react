@@ -4,6 +4,7 @@ class updateContent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      id: this.props.data.id,
       title: this.props.data.title,
       desc: this.props.data.desc
     }
@@ -12,10 +13,11 @@ class updateContent extends React.Component {
       return (
         <article>
           <h2>Update</h2>
-          <form action="/create_process" method="post"
+          <form action="/update_process" method="post"
             onSubmit = {function(e) {
               e.preventDefault();
               this.props.onSubmit(
+                this.state.id,
                 e.target.title.value,
                 e.target.desc.value
               )
