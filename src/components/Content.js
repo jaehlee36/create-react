@@ -8,7 +8,7 @@ class Content extends React.Component {
       return (
           <article>
               <h2>{this.props.title}</h2>
-              {this.props.description}
+              {this.props.desc}
           </article>
       );
   }
